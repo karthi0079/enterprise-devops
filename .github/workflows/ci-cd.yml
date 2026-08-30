@@ -84,9 +84,13 @@ jobs:
             sudo docker rm enterprise-devops-app || true
 
             sudo docker run -d \
-              --name enterprise-devops-app \
-              --restart unless-stopped \
-              -p 80:80 \
-              ${{ env.IMAGE_NAME }}:latest
+            --name enterprise-devops-app \
+            --restart unless-stopped \
+            --log-driver=awslogs \
+            --log-opt awslogs-region=ap-south-1 \
+            --log-opt awslogs-group=enterprise-devops-application \
+            --log-opt awslogs-stream=enterprise-devops-app \
+            -p 80:80 \
+            ${{ env.IMAGE_NAME }}:latest
 
             sudo docker image prune -f
