@@ -1,0 +1,41 @@
+name: Enterprise DevOps CI/CD
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build-test-scan:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Build Docker image
+        run: docker build -t enterprise-devops-app ./app
+
+      - name: Test Docker image
+        run: |
+          docker run -d -p 8080:80 --name test-app enterprise-devops-app
+          sleep 5
+          curl --fail http://localhost:8080
+
+      - name: Stop test container
+        if: always()
+        run: |
+          docker stop test-app || true
+          docker rm test-app || true
+
+      - name: Trivy security scan
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: enterprise-devops-app
+          format: table
+          exit-code: 1
+          ignore-unfixed: true
+          severity: CRITICAL,HIGH
