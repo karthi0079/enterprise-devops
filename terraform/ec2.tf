@@ -1,15 +1,21 @@
 data "aws_ami" "amazon_linux" {
   most_recent = true
-  owners      = ["amazon"]
+
+  owners = ["amazon"]
 
   filter {
     name   = "name"
-    values = ["al2023-ami-*-x86_64"]
+    values = ["al2023-ami-2023.*-kernel-6.1-x86_64"]
   }
 
   filter {
-    name   = "virtualization-type"
-    values = ["hvm"]
+    name   = "state"
+    values = ["available"]
+  }
+
+  filter {
+    name   = "architecture"
+    values = ["x86_64"]
   }
 }
 
@@ -39,7 +45,7 @@ resource "aws_security_group" "web" {
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
-    cidr_blocks = ["106.192.73.2/32"]
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   tags = {
@@ -66,15 +72,12 @@ resource "aws_instance" "app" {
               #!/bin/bash
 
               dnf update -y
-
               dnf install -y docker
 
               systemctl enable docker
               systemctl start docker
 
               usermod -aG docker ec2-user
-
-              echo "DevOps EC2 instance ready" > /home/ec2-user/status.txt
               EOF
 
   root_block_device {

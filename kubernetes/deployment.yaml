@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: enterprise-devops-app
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: enterprise-devops-app
+  template:
+    metadata:
+      labels:
+        app: enterprise-devops-app
+    spec:
+      containers:
+        - name: enterprise-devops-app
+          image: ghcr.io/karthi0079/enterprise-devops/enterprise-devops-app:latest
+          ports:
+            - containerPort: 80
+          resources:
+            requests:
+              cpu: "50m"
+              memory: "64Mi"
+            limits:
+              cpu: "250m"
+              memory: "128Mi"
